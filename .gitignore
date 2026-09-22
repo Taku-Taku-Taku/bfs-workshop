@@ -5,15 +5,16 @@
 *.exe
 *.out
 a.out
-bfs_answer
-bfs_template
-bfs_path_answer
-bfs_from_file
-maze_generator
-stack_sample
-queue_sample
-stack_queue_answer
-stack_queue_exercise
+0_stack_sample
+1_queue_sample
+2_stack_queue_exercise
+2_stack_queue_answer
+3_bfs_template
+3_bfs_answer
+3_bfs_path_answer
+4_bfs_from_file
+5_maze_generator
+bfs_check
 
 # Python
 __pycache__/

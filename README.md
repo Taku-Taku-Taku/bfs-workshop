@@ -36,29 +36,39 @@
 
 ## 0.1 使うファイルと実行方法
 
-| 場面 | Python | C++ |
-|---|---|---|
-| スタック・キューの例 | `python/stack_sample.py` `python/queue_sample.py` | `cpp/stack_sample.cpp` `cpp/queue_sample.cpp` |
-| ミニ演習 | `python/stack_queue_exercise.py` | `cpp/stack_queue_exercise.cpp` |
-| BFS穴埋め（メイン） | `python/bfs_template.py` | `cpp/bfs_template.cpp` |
-| BFSの解答 | `python/bfs_answer.py` | `cpp/bfs_answer.cpp` |
-| 最短経路の復元 | `python/bfs_path_answer.py` | `cpp/bfs_path_answer.cpp` |
-| 迷路ファイルを読む | `python/bfs_from_file.py` | `cpp/bfs_from_file.cpp` |
+ファイル名の先頭の番号は、**使う順番**です。上から順に進みます。
+
+| 順 | 場面 | Python | C++ |
+|---|---|---|---|
+| 0 | スタックの例 | `python/0_stack_sample.py` | `cpp/0_stack_sample.cpp` |
+| 1 | キューの例 | `python/1_queue_sample.py` | `cpp/1_queue_sample.cpp` |
+| 2 | ミニ演習 | `python/2_stack_queue_exercise.py` | `cpp/2_stack_queue_exercise.cpp` |
+| 3 | **BFS穴埋め（メイン）** | `python/3_bfs_template.py` | `cpp/3_bfs_template.cpp` |
+| 4 | 別の迷路で試す | `python/4_bfs_from_file.py` | `cpp/4_bfs_from_file.cpp` |
+| 5 | 迷路の自動生成（おまけ） | `python/5_maze_generator.py` | `cpp/5_maze_generator.cpp` |
+
+解答は `answers/` フォルダにまとめてあります。番号は対応する教材と同じです。
+
+| 順 | 内容 | Python | C++ |
+|---|---|---|---|
+| 2 | ミニ演習の解答 | `python/answers/2_stack_queue_answer.py` | `cpp/answers/2_stack_queue_answer.cpp` |
+| 3 | BFSの解答 | `python/answers/3_bfs_answer.py` | `cpp/answers/3_bfs_answer.cpp` |
+| 3 | 最短経路つきの完成版 | `python/answers/3_bfs_path_answer.py` | `cpp/answers/3_bfs_path_answer.cpp` |
 
 実行方法:
 
 ```text
 # Python
 cd python
-python3 bfs_template.py
+python3 3_bfs_template.py
 
 # C++（-std=c++17 を必ず付ける）
 cd cpp
-g++ -std=c++17 -o bfs_template bfs_template.cpp
-./bfs_template
+g++ -std=c++17 -o 3_bfs_template 3_bfs_template.cpp
+./3_bfs_template
 ```
 
-Windows では `python3` を `python`、`./bfs_template` を `bfs_template.exe` に読み替えてください。
+Windows では `python3` を `python`、`./3_bfs_template` を `3_bfs_template.exe` に読み替えてください。
 
 ---
 
@@ -349,7 +359,7 @@ que.pop();                        // 先頭を削除
 
 # 4. BFSを実装してみよう
 
-`bfs_template.py` / `bfs_template.cpp` の TODO を埋めます。
+`3_bfs_template.py` / `3_bfs_template.cpp` の TODO を埋めます。
 
 まずは、スタートから各マスまでの最短距離を求めます。
 
@@ -461,7 +471,7 @@ while (row, col) がスタートでない:
     (row, col) = (prev_row[row][col], prev_col[row][col])
 ```
 
-動くものは `bfs_path_answer.py` / `bfs_path_answer.cpp` にあります。
+動くものは `answers/3_bfs_path_answer.py` / `answers/3_bfs_path_answer.cpp` にあります。
 
 ---
 
@@ -469,7 +479,7 @@ while (row, col) がスタートでない:
 
 `mazes/` フォルダに迷路ファイルがあります。
 
-- `bfs_from_file.py` / `bfs_from_file.cpp` の `maze_file` を書き換えると、その迷路で試せます。
+- `4_bfs_from_file.py` / `4_bfs_from_file.cpp` の `maze_file` を書き換えると、その迷路で試せます。
 - 自分で書いたプログラムで試すときは、`maze` の中身と `start_row` などを書き換えます。
 
 例: 到達できない迷路 `maze05_unreachable.txt`
@@ -535,7 +545,7 @@ DFSでも「ゴールに到達できるか」は調べられます。
 
 # おまけ: 迷路を自動生成する
 
-`python/maze_generator.py` または `cpp/maze_generator.cpp` では、
+`python/5_maze_generator.py` または `cpp/5_maze_generator.cpp` では、
 迷路そのものをランダムに生成できます。
 
 この生成処理は **スタックを使ったDFS（深く進み、行き止まりで戻る）** です。
@@ -556,5 +566,5 @@ goal_row goal_col
 
 ```text
 cd python
-python3 maze_generator.py > ../mazes/generated.txt
+python3 5_maze_generator.py > ../mazes/generated.txt
 ```

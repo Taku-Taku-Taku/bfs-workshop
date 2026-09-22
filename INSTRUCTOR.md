@@ -2,6 +2,9 @@
 
 対象: プログラミング初心者の大学生 約15人 / 60分 / Python・C++
 
+`python/` `cpp/` のファイルは**先頭の番号が使う順番**。解答は `answers/` に分けてある。
+0 スタック → 1 キュー → 2 ミニ演習 → 3 BFS穴埋め → 4 別の迷路 → 5 迷路生成（おまけ）
+
 ---
 
 ## 事前準備（当日より前）
@@ -10,7 +13,7 @@
 
 - Python（`python3 --version` が動く）か、C++（`g++ --version` が動く）のどちらかが使える状態にしておく
 - 教材フォルダをダウンロードしておく
-- **事前に `stack_sample.py` / `stack_sample.cpp` を1回実行しておく**
+- **事前に `0_stack_sample.py` / `0_stack_sample.cpp` を1回実行しておく**
 
 最後の1つが特に重要。
 当日に環境構築が始まると15人は捌けない。
@@ -18,7 +21,7 @@
 講師側の準備:
 
 - `demo/bfs_visualizer.html` をブラウザで開いて表示確認（拡大表示も確認）
-- `bfs_answer` / `bfs_path_answer` を Python・C++ 両方で実行しておく
+- `answers/3_bfs_answer` / `answers/3_bfs_path_answer` を Python・C++ 両方で実行しておく
 - C++ は `-std=c++17` が必要（`auto [row, col] = ...` を使っているため）
 - 会場で環境がない人向けに、オンライン実行環境のURLを1つ用意しておく
 
@@ -93,7 +96,7 @@ BFSではキューを使う。
 
 ## 12〜19分: ミニ演習
 
-`stack_queue_exercise.*`
+`2_stack_queue_exercise.*`
 
 ここは「環境が動くことの確認」も兼ねている。
 開始2分で手が止まっている人がいないか、必ず歩いて確認する。
@@ -137,7 +140,7 @@ BFSではキューを使う。
 
 ## 27〜45分: BFS穴埋め（本日の中心）
 
-`bfs_template.py` / `bfs_template.cpp`
+`3_bfs_template.py` / `3_bfs_template.cpp`
 
 TODO は Python・C++ とも 1〜7 で対応している。
 
@@ -167,7 +170,7 @@ TODO は Python・C++ とも 1〜7 で対応している。
 
 - **33分**: TODO 1〜3 の答えを画面に出す（全員を強制的に揃える）
 - **40分**: TODO 4〜5 の答えを画面に出す
-- **44分**: 全部の答えを出す。動かなかった人も `bfs_answer.*` で結果を確認させる
+- **44分**: 全部の答えを出す。動かなかった人も `answers/3_bfs_answer.*` で結果を確認させる
 
 個別対応は1人あたり1分まで。
 同じ質問が2人以上から出たら、その場で全体に説明する。
@@ -193,7 +196,7 @@ TODO は Python・C++ とも 1〜7 で対応している。
 
 ## 50〜55分: 経路復元（余裕があれば）
 
-`bfs_path_answer.*` を**講師が実行して見せるだけでよい**。
+`answers/3_bfs_path_answer.*` を**講師が実行して見せるだけでよい**。
 参加者に書かせない。
 
 伝えること:
@@ -206,7 +209,7 @@ TODO は Python・C++ とも 1〜7 で対応している。
 
 ## 55〜58分: 別迷路で試す（余裕があれば）
 
-`bfs_from_file.*` の `maze_file` を書き換えて実行する。
+`4_bfs_from_file.*` の `maze_file` を書き換えて実行する。
 
 おすすめ:
 
@@ -232,7 +235,7 @@ DFS:
 - 近い場所から探索
 - 訪問済み管理が必要
 
-時間が余ったら `maze_generator.*` を動かして見せる（本編外）。
+時間が余ったら `5_maze_generator.*` を動かして見せる（本編外）。
 
 ---
 
@@ -265,9 +268,9 @@ DFS:
 
 - [ ] プロジェクタで `bfs_visualizer.html` が読めるサイズか（ブラウザ拡大 125〜150%）
 - [ ] ブラウザのダークモード拡張などで色が変わっていないか
-- [ ] `python3 bfs_answer.py` が `最短距離: 11` を出す
-- [ ] `g++ -std=c++17 -o bfs_answer bfs_answer.cpp && ./bfs_answer` が `最短距離: 11` を出す
-- [ ] `bfs_path_answer` の出力（S / * / G の迷路）が両言語で一致している
+- [ ] `python3 answers/3_bfs_answer.py` が `最短距離: 11` を出す
+- [ ] `g++ -std=c++17 -o bfs_check answers/3_bfs_answer.cpp && ./bfs_check` が `最短距離: 11` を出す
+- [ ] `3_bfs_path_answer` の出力（S / * / G の迷路）が両言語で一致している
 - [ ] README の「実行方法」を参加者が開けているか
 - [ ] Python組・C++組がそれぞれ何人か把握した
 
