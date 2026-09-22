@@ -134,7 +134,7 @@ button, select {
     </label>
     <label>
         <input type="checkbox" id="stopAtGoal" checked>
-        ゴールに着いたら止める
+        ゴールを見つけたら止める
     </label>
 </div>
 
@@ -226,16 +226,12 @@ function makeSnapshots(stopAtGoal) {
 
     save("スタート地点をキューに追加");
 
-    let reached = false;
-
+    // ゴールを「発見した」時点で、その距離はもう最短。
+    // BFSは距離の小さい順に処理し、一度入れた距離を書き換えないため。
+    search:
     while (q.length > 0) {
         const [r, c] = q.shift();
         save(`(${r}, ${c}) をキューから取り出す`, [r, c]);
-
-        if (r === goal[0] && c === goal[1]) {
-            reached = true;
-            if (stopAtGoal) break;
-        }
 
         for (let i = 0; i < 4; i++) {
             const nr = r + dr[i];
@@ -250,6 +246,8 @@ function makeSnapshots(stopAtGoal) {
             q.push([nr, nc]);
 
             save(`(${nr}, ${nc}) を発見 → 距離 ${dist[nr][nc]}、キューへ追加`, [r, c]);
+
+            if (stopAtGoal && nr === goal[0] && nc === goal[1]) break search;
         }
     }
 
@@ -264,10 +262,10 @@ function makeSnapshots(stopAtGoal) {
         path.push(start);
         path.reverse();
 
-        const tail = reached && !stopAtGoal
-            ? "キューが空になりました。"
-            : "";
-        save(`${tail}ゴール到達。最短距離は ${dist[goal[0]][goal[1]]}`, null, path);
+        const head = stopAtGoal
+            ? "ゴールを発見した時点で確定。"
+            : "キューが空になりました。";
+        save(`${head}最短距離は ${dist[goal[0]][goal[1]]}`, null, path);
     } else {
         save("キューが空になりました。ゴールには到達できません");
     }
@@ -315,9 +313,11 @@ function makeCell(r, c, snap, qset, pset) {
         addLabel(cell, "G");
     }
 
+    // 最短経路の表示は最終フレームだけ。キュー表示より優先する
+    // （発見時点で打ち切るとゴールはまだキューの中にいるため）
     if (isCurrent) addMark(cell, "今");
-    else if (inQueue) addMark(cell, "待");
     else if (inPath) addMark(cell, "★");
+    else if (inQueue) addMark(cell, "待");
 
     return cell;
 }
