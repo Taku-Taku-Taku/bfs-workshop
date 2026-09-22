@@ -1,0 +1,53 @@
+from collections import deque
+
+maze = [
+    "........",
+    ".####...",
+    "....#...",
+    ".##.....",
+    "........",
+]
+
+H = len(maze)
+W = len(maze[0])
+
+start_row, start_col = 0, 0
+goal_row, goal_col = 4, 7
+
+# 各マスまでの距離。-1 は「まだ訪れていない」
+dist = [[-1] * W for _ in range(H)]
+
+dr = [-1, 1, 0, 0]
+dc = [0, 0, -1, 1]
+
+que = deque()
+
+# スタート地点をキューに入れる
+dist[start_row][start_col] = 0
+que.append((start_row, start_col))
+
+while que:
+    row, col = que.popleft()
+
+    for i in range(4):
+        next_row = row + dr[i]
+        next_col = col + dc[i]
+
+        if not (0 <= next_row < H and 0 <= next_col < W):
+            continue
+
+        if maze[next_row][next_col] == "#":
+            continue
+
+        if dist[next_row][next_col] != -1:
+            continue
+
+        dist[next_row][next_col] = dist[row][col] + 1
+        que.append((next_row, next_col))
+
+answer = dist[goal_row][goal_col]
+
+if answer == -1:
+    print("ゴールには到達できません")
+else:
+    print("最短距離:", answer)

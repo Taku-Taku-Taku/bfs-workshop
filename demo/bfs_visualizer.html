@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>BFS Visualizer</title>
+<style>
+body {
+    font-family: system-ui, sans-serif;
+    margin: 24px;
+    background: #fafafa;
+    color: #111;
+}
+h1 { margin-bottom: 8px; }
+.controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+button, select {
+    font-size: 16px;
+    padding: 8px 12px;
+}
+#status {
+    margin: 12px 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+.grid-wrap { display: inline-block; }
+.grid {
+    display: grid;
+    gap: 2px;
+    align-items: center;
+}
+.cell, .head {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+.head {
+    font-size: 18px;
+    font-weight: 700;
+    background: transparent;
+}
+.cell {
+    border: 1px solid #aaa;
+    background: white;
+    position: relative;
+}
+.wall { background: #333; }
+.start { outline: 4px solid #222; outline-offset: -1px; }
+.goal { outline: 4px dashed #222; outline-offset: -1px; }
+.visited { background: #dcdcdc; }
+.frontier { box-shadow: inset 0 0 0 4px #888; }
+.current { box-shadow: inset 0 0 0 6px #000; }
+.path { background: #f2c14e; }
+.label {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-size: 12px;
+    font-weight: 700;
+}
+.mark {
+    position: absolute;
+    bottom: 5px;
+    right: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.1;
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+.distance {
+    font-size: 22px;
+    font-weight: 700;
+}
+#queue {
+    margin-top: 14px;
+    font-family: ui-monospace, monospace;
+    font-size: 18px;
+    white-space: pre-wrap;
+}
+.legend {
+    margin-top: 16px;
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.legend .item {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 15px;
+}
+.legend .cell { width: 44px; height: 44px; }
+.legend .distance { font-size: 15px; }
+.note {
+    margin-top: 12px;
+    max-width: 820px;
+    font-size: 15px;
+}
+</style>
+</head>
+<body>
+<h1>BFS 可視化</h1>
+
+<div class="controls">
+    <label>
+        迷路:
+        <select id="mazeSelect">
+            <option value="0" selected>基本の迷路 (5x8)</option>
+            <option value="1">到達できない迷路 (5x7)</option>
+            <option value="2">遠回りが必要な迷路 (7x9)</option>
+        </select>
+    </label>
+    <button id="reset">リセット</button>
+    <button id="prev">← 1手戻る</button>
+    <button id="next">1手進む →</button>
+    <button id="auto">自動再生</button>
+    <label>
+        速度:
+        <select id="speed">
+            <option value="1200">ゆっくり</option>
+            <option value="700" selected>普通</option>
+            <option value="300">速い</option>
+        </select>
+    </label>
+    <label>
+        <input type="checkbox" id="stopAtGoal" checked>
+        ゴールに着いたら止める
+    </label>
+</div>
+
+<div id="status"></div>
+<div class="grid-wrap">
+    <div id="grid" class="grid"></div>
+</div>
+<div id="queue"></div>
+
+<div class="legend" id="legend"></div>
+
+<div class="note">
+    上に列番号、左に行番号を表示しています。座標は (row, col) = (行, 列) です。<br>
+    セルの中の数字は、スタートからの距離（何手で来たか）です。<br>
+    ← → キーでも1手ずつ進めます。
+</div>
+
+<script>
+const MAZES = [
+    {
+        name: "基本の迷路",
+        maze: [
+            "........",
+            ".####...",
+            "....#...",
+            ".##.....",
+            "........",
+        ],
+        start: [0, 0],
+        goal: [4, 7],
+    },
+    {
+        name: "到達できない迷路",
+        maze: [
+            ".......",
+            "#######",
+            ".......",
+            "#######",
+            ".......",
+        ],
+        start: [0, 0],
+        goal: [4, 6],
+    },
+    {
+        name: "遠回りが必要な迷路",
+        maze: [
+            ".........",
+            "########.",
+            ".........",
+            ".########",
+            ".........",
+            "########.",
+            ".........",
+        ],
+        start: [0, 0],
+        goal: [6, 8],
+    },
+];
+
+const dr = [-1, 1, 0, 0];
+const dc = [0, 0, -1, 1];
+
+let maze, H, W, start, goal;
+let snapshots = [];
+let index = 0;
+let timer = null;
+
+function key(r, c) {
+    return `${r},${c}`;
+}
+
+function makeSnapshots(stopAtGoal) {
+    const dist = Array.from({length: H}, () => Array(W).fill(-1));
+    const prev = Array.from({length: H}, () => Array(W).fill(null));
+    const q = [start];
+    dist[start[0]][start[1]] = 0;
+
+    const snaps = [];
+
+    function save(status, current = null, path = []) {
+        snaps.push({
+            dist: dist.map(row => [...row]),
+            queue: q.map(x => [...x]),
+            current: current ? [...current] : null,
+            status,
+            path: path.map(x => [...x]),
+        });
+    }
+
+    save("スタート地点をキューに追加");
+
+    let reached = false;
+
+    while (q.length > 0) {
+        const [r, c] = q.shift();
+        save(`(${r}, ${c}) をキューから取り出す`, [r, c]);
+
+        if (r === goal[0] && c === goal[1]) {
+            reached = true;
+            if (stopAtGoal) break;
+        }
+
+        for (let i = 0; i < 4; i++) {
+            const nr = r + dr[i];
+            const nc = c + dc[i];
+
+            if (nr < 0 || nr >= H || nc < 0 || nc >= W) continue;
+            if (maze[nr][nc] === "#") continue;
+            if (dist[nr][nc] !== -1) continue;
+
+            dist[nr][nc] = dist[r][c] + 1;
+            prev[nr][nc] = [r, c];
+            q.push([nr, nc]);
+
+            save(`(${nr}, ${nc}) を発見 → 距離 ${dist[nr][nc]}、キューへ追加`, [r, c]);
+        }
+    }
+
+    if (dist[goal[0]][goal[1]] !== -1) {
+        const path = [];
+        let cur = goal;
+
+        while (!(cur[0] === start[0] && cur[1] === start[1])) {
+            path.push(cur);
+            cur = prev[cur[0]][cur[1]];
+        }
+        path.push(start);
+        path.reverse();
+
+        const tail = reached && !stopAtGoal
+            ? "キューが空になりました。"
+            : "";
+        save(`${tail}ゴール到達。最短距離は ${dist[goal[0]][goal[1]]}`, null, path);
+    } else {
+        save("キューが空になりました。ゴールには到達できません");
+    }
+
+    return snaps;
+}
+
+const gridEl = document.getElementById("grid");
+const statusEl = document.getElementById("status");
+const queueEl = document.getElementById("queue");
+
+function makeCell(r, c, snap, qset, pset) {
+    const cell = document.createElement("div");
+    cell.className = "cell";
+
+    if (maze[r][c] === "#") {
+        cell.classList.add("wall");
+        return cell;
+    }
+
+    const inPath = pset.has(key(r, c));
+    const inQueue = qset.has(key(r, c));
+    const isCurrent =
+        snap.current && r === snap.current[0] && c === snap.current[1];
+
+    if (snap.dist[r][c] !== -1) {
+        cell.classList.add("visited");
+
+        const d = document.createElement("div");
+        d.className = "distance";
+        d.textContent = snap.dist[r][c];
+        cell.appendChild(d);
+    }
+
+    if (inPath) cell.classList.add("path");
+    if (inQueue) cell.classList.add("frontier");
+    if (isCurrent) cell.classList.add("current");
+
+    if (r === start[0] && c === start[1]) {
+        cell.classList.add("start");
+        addLabel(cell, "S");
+    }
+    if (r === goal[0] && c === goal[1]) {
+        cell.classList.add("goal");
+        addLabel(cell, "G");
+    }
+
+    if (isCurrent) addMark(cell, "今");
+    else if (inQueue) addMark(cell, "待");
+    else if (inPath) addMark(cell, "★");
+
+    return cell;
+}
+
+function addLabel(cell, text) {
+    const el = document.createElement("div");
+    el.className = "label";
+    el.textContent = text;
+    cell.appendChild(el);
+}
+
+function addMark(cell, text) {
+    const el = document.createElement("div");
+    el.className = "mark";
+    el.textContent = text;
+    cell.appendChild(el);
+}
+
+function render() {
+    const snap = snapshots[index];
+
+    gridEl.innerHTML = "";
+    gridEl.style.gridTemplateColumns = `52px repeat(${W}, 52px)`;
+
+    gridEl.appendChild(document.createElement("div"));
+
+    for (let c = 0; c < W; c++) {
+        const h = document.createElement("div");
+        h.className = "head";
+        h.textContent = c;
+        gridEl.appendChild(h);
+    }
+
+    const qset = new Set(snap.queue.map(([r, c]) => key(r, c)));
+    const pset = new Set(snap.path.map(([r, c]) => key(r, c)));
+
+    for (let r = 0; r < H; r++) {
+        const rowHead = document.createElement("div");
+        rowHead.className = "head";
+        rowHead.textContent = r;
+        gridEl.appendChild(rowHead);
+
+        for (let c = 0; c < W; c++) {
+            gridEl.appendChild(makeCell(r, c, snap, qset, pset));
+        }
+    }
+
+    statusEl.textContent =
+        `STEP ${index + 1} / ${snapshots.length}: ${snap.status}`;
+
+    queueEl.textContent =
+        "キュー（左端が次に取り出す） = [" +
+        snap.queue.map(([r, c]) => `(${r}, ${c})`).join(", ") +
+        "]";
+}
+
+function buildLegend() {
+    const items = [
+        ["今", "current", "いま調べているマス"],
+        ["待", "frontier", "キューに入っているマス"],
+        ["", "visited", "訪問済み（数字は距離）"],
+        ["★", "path", "最短経路"],
+        ["", "wall", "壁"],
+        ["S", "start", "スタート"],
+        ["G", "goal", "ゴール"],
+    ];
+
+    const legend = document.getElementById("legend");
+    legend.innerHTML = "";
+
+    for (const [mark, cls, text] of items) {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const cell = document.createElement("div");
+        cell.className = "cell " + cls;
+
+        if (cls === "visited" || cls === "path") {
+            cell.classList.add("visited");
+            const d = document.createElement("div");
+            d.className = "distance";
+            d.textContent = "3";
+            cell.appendChild(d);
+        }
+        if (cls === "current" || cls === "frontier") {
+            cell.classList.add("visited");
+        }
+        if (mark === "S" || mark === "G") addLabel(cell, mark);
+        else if (mark) addMark(cell, mark);
+
+        const span = document.createElement("span");
+        span.textContent = text;
+
+        item.appendChild(cell);
+        item.appendChild(span);
+        legend.appendChild(item);
+    }
+}
+
+function load() {
+    const conf = MAZES[Number(document.getElementById("mazeSelect").value)];
+    maze = conf.maze;
+    H = maze.length;
+    W = maze[0].length;
+    start = conf.start;
+    goal = conf.goal;
+
+    snapshots = makeSnapshots(document.getElementById("stopAtGoal").checked);
+    index = 0;
+    render();
+}
+
+function stopAuto() {
+    if (timer !== null) {
+        clearInterval(timer);
+        timer = null;
+        document.getElementById("auto").textContent = "自動再生";
+    }
+}
+
+function step(delta) {
+    stopAuto();
+    index = Math.min(Math.max(index + delta, 0), snapshots.length - 1);
+    render();
+}
+
+document.getElementById("next").onclick = () => step(1);
+document.getElementById("prev").onclick = () => step(-1);
+
+document.getElementById("reset").onclick = () => {
+    stopAuto();
+    index = 0;
+    render();
+};
+
+document.getElementById("mazeSelect").onchange = () => {
+    stopAuto();
+    load();
+};
+
+document.getElementById("stopAtGoal").onchange = () => {
+    stopAuto();
+    load();
+};
+
+document.getElementById("auto").onclick = () => {
+    if (timer !== null) {
+        stopAuto();
+        return;
+    }
+
+    document.getElementById("auto").textContent = "停止";
+    const speed = Number(document.getElementById("speed").value);
+
+    timer = setInterval(() => {
+        if (index >= snapshots.length - 1) {
+            stopAuto();
+            return;
+        }
+        index++;
+        render();
+    }, speed);
+};
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") { step(1); e.preventDefault(); }
+    if (e.key === "ArrowLeft") { step(-1); e.preventDefault(); }
+});
+
+buildLegend();
+load();
+</script>
+</body>
+</html>

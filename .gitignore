@@ -1,0 +1,23 @@
+# Windows のダウンロード由来メタデータ
+*:Zone.Identifier
+
+# C++ のビルド成果物
+*.exe
+*.out
+a.out
+bfs_answer
+bfs_template
+bfs_path_answer
+bfs_from_file
+maze_generator
+stack_sample
+queue_sample
+stack_queue_answer
+stack_queue_exercise
+
+# Python
+__pycache__/
+*.pyc
+
+# 自動生成した迷路
+mazes/generated.txt
