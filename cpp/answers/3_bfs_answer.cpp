@@ -6,21 +6,18 @@
 using namespace std;
 
 int main() {
-    vector<string> maze = {
-        "........",
-        ".####...",
-        "....#...",
-        ".##.....",
-        "........",
-    };
+    int H, W;
+    cin >> H >> W;
 
-    int H = (int)maze.size();
-    int W = (int)maze[0].size();
+    int start_row, start_col;
+    int goal_row, goal_col;
+    cin >> start_row >> start_col;
+    cin >> goal_row >> goal_col;
 
-    int start_row = 0;
-    int start_col = 0;
-    int goal_row = 4;
-    int goal_col = 7;
+    vector<string> maze(H);
+    for (int i = 0; i < H; i++) {
+        cin >> maze[i];
+    }
 
     // 各マスまでの距離。-1 は「まだ訪れていない」
     vector<vector<int>> dist(H, vector<int>(W, -1));
