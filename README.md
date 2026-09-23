@@ -153,20 +153,20 @@ push 3
 ### C++
 
 ```cpp
+#include <deque>
 #include <iostream>
-#include <queue>
 using namespace std;
 
 int main() {
-    queue<int> que;
+    deque<int> que;
 
-    que.push(1);
-    que.push(2);
-    que.push(3);
+    que.push_back(1);
+    que.push_back(2);
+    que.push_back(3);
 
     while (!que.empty()) {
         cout << que.front() << '\n';
-        que.pop();
+        que.pop_front();
     }
 }
 ```
@@ -347,12 +347,12 @@ row, col = que.popleft()     # 先頭を取り出す
 C++:
 
 ```cpp
-queue<pair<int, int>> que;
+deque<pair<int, int>> que;
 
-que.push({row, col});             // 追加
+que.push_back({row, col});        // 追加
 
 auto [row, col] = que.front();    // 先頭を見る（row と col に分けて受け取る）
-que.pop();                        // 先頭を削除
+que.pop_front();                  // 先頭を削除
 ```
 
 ---
@@ -397,7 +397,7 @@ while キューが空ではない:
 ```
 
 TODO を埋めるまではプログラムは正しく動きません。
-（Pythonはエラー、C++は無限ループになります。止まらないときは `Ctrl + C`）
+（Pythonは `NameError`、C++は無限ループになります。止まらないときは `Ctrl + C`）
 
 ---
 

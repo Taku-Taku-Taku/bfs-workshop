@@ -177,7 +177,7 @@ TODO は Python・C++ とも 1〜7 で対応している。
 
 ### よくあるつまずき
 
-- Python: TODO を埋める前に実行して `IndentationError`（これは正常。埋めれば直る）
+- Python: TODO を埋める前に実行して `NameError: name 'row' is not defined`（TODO 1 を埋めれば直る）
 - C++: TODO を埋める前に実行すると**無限ループ**（`Ctrl + C` で止める）
 - C++: `-std=c++17` を付け忘れてコンパイルエラー
 - 訪問済みチェックを忘れる → 終わらない・距離が壊れる

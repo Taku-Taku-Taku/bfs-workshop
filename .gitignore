@@ -15,7 +15,7 @@ a.out
 4_bfs_from_file
 5_maze_generator
 bfs_check
-
+.claude/*
 # Python
 __pycache__/
 *.pyc

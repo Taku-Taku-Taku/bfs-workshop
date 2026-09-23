@@ -1,5 +1,5 @@
+#include <deque>
 #include <iostream>
-#include <queue>
 #include <string>
 #include <utility>
 #include <vector>
@@ -28,15 +28,15 @@ int main() {
     int dr[4] = {-1, 1, 0, 0};
     int dc[4] = {0, 0, -1, 1};
 
-    queue<pair<int, int>> que;
+    deque<pair<int, int>> que;
 
     // スタート地点をキューに入れる
     dist[start_row][start_col] = 0;
-    que.push({start_row, start_col});
+    que.push_back({start_row, start_col});
 
     while (!que.empty()) {
         auto [row, col] = que.front();
-        que.pop();
+        que.pop_front();
 
         for (int i = 0; i < 4; i++) {
             int next_row = row + dr[i];
@@ -56,7 +56,7 @@ int main() {
             }
 
             dist[next_row][next_col] = dist[row][col] + 1;
-            que.push({next_row, next_col});
+            que.push_back({next_row, next_col});
         }
     }
 

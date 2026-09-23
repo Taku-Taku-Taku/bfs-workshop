@@ -1,12 +1,12 @@
+#include <deque>
 #include <iostream>
-#include <queue>
 #include <string>
 #include <utility>
 #include <vector>
 using namespace std;
 
 int main() {
-    // TODO を埋めるまでは実行しても終わりません（無限ループ）。
+    // キューの取り出し（TODO 1）を埋めるまでは実行しても終わりません（無限ループ）。
     // 止まらなくなったら Ctrl + C で終了してください。
 
     vector<string> maze = {
@@ -31,11 +31,11 @@ int main() {
     int dr[4] = {-1, 1, 0, 0};
     int dc[4] = {0, 0, -1, 1};
 
-    queue<pair<int, int>> que;
+    deque<pair<int, int>> que;
 
     // スタート地点をキューに入れる
     dist[start_row][start_col] = 0;
-    que.push({start_row, start_col});
+    que.push_back({start_row, start_col});
 
     while (!que.empty()) {
         // TODO 1:

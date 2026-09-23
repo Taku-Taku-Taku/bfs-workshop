@@ -1,5 +1,5 @@
+#include <deque>
 #include <iostream>
-#include <queue>
 #include <stack>
 using namespace std;
 
@@ -18,16 +18,16 @@ int main() {
 
     cout << "-----\n";
 
-    queue<int> que;
+    deque<int> que;
 
-    que.push(10);
-    que.push(20);
-    que.push(30);
-    que.push(40);
+    que.push_back(10);
+    que.push_back(20);
+    que.push_back(30);
+    que.push_back(40);
 
     while (!que.empty()) {
         cout << que.front() << '\n';
-        que.pop();
+        que.pop_front();
     }
 
     return 0;

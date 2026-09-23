@@ -1,17 +1,17 @@
+#include <deque>
 #include <iostream>
-#include <queue>
 using namespace std;
 
 int main() {
-    queue<int> que;
+    deque<int> que;
 
-    que.push(1);
-    que.push(2);
-    que.push(3);
+    que.push_back(1);
+    que.push_back(2);
+    que.push_back(3);
 
     while (!que.empty()) {
         cout << que.front() << '\n';
-        que.pop();
+        que.pop_front();
     }
 
     return 0;
