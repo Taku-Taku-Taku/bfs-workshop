@@ -13,20 +13,20 @@ maze = [
 H = len(maze)
 W = len(maze[0])
 
-start_row, start_col = 0, 0
-goal_row, goal_col = 4, 7
+sy, sx = 0, 0
+gy, gx = 4, 7
 
 # 各マスまでの距離。-1 は「まだ訪れていない」
 dist = [[-1] * W for _ in range(H)]
 
-dr = [-1, 1, 0, 0]
-dc = [0, 0, -1, 1]
+dy = [-1, 1, 0, 0]
+dx = [0, 0, -1, 1]
 
 que = deque()
 
 # スタート地点をキューに入れる
-dist[start_row][start_col] = 0
-que.append((start_row, start_col))
+dist[sy][sx] = 0
+que.append((sy, sx))
 
 while que:
     # TODO 1:
@@ -58,7 +58,7 @@ while que:
         # 次の場所をキューに追加しよう
 
 
-answer = dist[goal_row][goal_col]
+answer = dist[gy][gx]
 
 if answer == -1:
     print("ゴールには到達できません")

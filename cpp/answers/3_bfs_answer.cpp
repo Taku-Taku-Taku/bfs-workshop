@@ -6,61 +6,58 @@
 using namespace std;
 
 int main() {
-    vector<string> maze = {
-        "........",
-        ".####...",
-        "....#...",
-        ".##.....",
-        "........",
-    };
+    int H, W;
+    cin >> H >> W;
 
-    int H = (int)maze.size();
-    int W = (int)maze[0].size();
+    int sy, sx;
+    int gy, gx;
+    cin >> sy >> sx;
+    cin >> gy >> gx;
 
-    int start_row = 0;
-    int start_col = 0;
-    int goal_row = 4;
-    int goal_col = 7;
+    vector<string> maze(H);
+    for (int i = 0; i < H; i++) {
+        cin >> maze[i];
+    }
 
     // 各マスまでの距離。-1 は「まだ訪れていない」
     vector<vector<int>> dist(H, vector<int>(W, -1));
 
-    int dr[4] = {-1, 1, 0, 0};
-    int dc[4] = {0, 0, -1, 1};
+    int dy[4] = {-1, 1, 0, 0};
+    int dx[4] = {0, 0, -1, 1};
 
     deque<pair<int, int>> que;
 
     // スタート地点をキューに入れる
-    dist[start_row][start_col] = 0;
-    que.push_back({start_row, start_col});
+    dist[sy][sx] = 0;
+    que.push_back({sy, sx});
 
     while (!que.empty()) {
-        auto [row, col] = que.front();
+        auto [y, x] = que.front();
         que.pop_front();
 
         for (int i = 0; i < 4; i++) {
-            int next_row = row + dr[i];
-            int next_col = col + dc[i];
+            int ny = y + dy[i];
+            int nx = x + dx[i];
 
-            if (next_row < 0 || next_row >= H ||
-                next_col < 0 || next_col >= W) {
+            if (ny < 0 || ny >= H ||
+                nx < 0 || nx >= W) {
                 continue;
             }
 
-            if (maze[next_row][next_col] == '#') {
+            if (maze[ny][nx] == '#') {
                 continue;
             }
 
-            if (dist[next_row][next_col] != -1) {
+            if (dist[ny][nx] != -1) {
                 continue;
             }
 
-            dist[next_row][next_col] = dist[row][col] + 1;
-            que.push_back({next_row, next_col});
+            dist[ny][nx] = dist[y][x] + 1;
+            que.push_back({ny, nx});
         }
     }
 
-    int answer = dist[goal_row][goal_col];
+    int answer = dist[gy][gx];
 
     if (answer == -1) {
         cout << "ゴールには到達できません\n";

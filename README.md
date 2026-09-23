@@ -24,8 +24,8 @@
 ```
 
 - 1行目: 高さ `H` と幅 `W`
-- 2行目: スタート地点 `start_row start_col`
-- 3行目: ゴール地点 `goal_row goal_col`
+- 2行目: スタート地点 `sy sx`
+- 3行目: ゴール地点 `gy gx`
 - `.`: 通れるマス
 - `#`: 壁
 
@@ -44,7 +44,7 @@
 | 1 | キューの例 | `python/1_queue_sample.py` | `cpp/1_queue_sample.cpp` |
 | 2 | ミニ演習 | `python/2_stack_queue_exercise.py` | `cpp/2_stack_queue_exercise.cpp` |
 | 3 | **BFS穴埋め（メイン）** | `python/3_bfs_template.py` | `cpp/3_bfs_template.cpp` |
-| 4 | 別の迷路で試す | `python/4_bfs_from_file.py` | `cpp/4_bfs_from_file.cpp` |
+| 4 | 別の迷路で試す | `python/4_bfs_from_file.py` | （stdin リダイレクションで同様に試せる） |
 | 5 | 迷路の自動生成（おまけ） | `python/5_maze_generator.py` | `cpp/5_maze_generator.cpp` |
 
 解答は `answers/` フォルダにまとめてあります。番号は対応する教材と同じです。
@@ -290,7 +290,7 @@ while キューが空ではない:
 
 上下左右は次のように表します。
 
-| 方向 | rowの変化 | colの変化 |
+| 方向 | yの変化 | xの変化 |
 |---|---:|---:|
 | 上 | -1 | 0 |
 | 下 | +1 | 0 |
@@ -300,18 +300,47 @@ while キューが空ではない:
 C++:
 
 ```cpp
-int dr[4] = {-1, 1, 0, 0};
-int dc[4] = {0, 0, -1, 1};
+int dy[4] = {-1, 1, 0, 0};
+int dx[4] = {0, 0, -1, 1};
 ```
 
 Python:
 
 ```python
-dr = [-1, 1, 0, 0]
-dc = [0, 0, -1, 1]
+dy = [-1, 1, 0, 0]
+dx = [0, 0, -1, 1]
 ```
 
-`i` 番目の方向に進んだ先は `(row + dr[i], col + dc[i])` です。
+`i` 番目の方向に進んだ先は `(y + dy[i], x + dx[i])` です。
+
+### dy / dx の読み方
+
+`dy` と `dx` は **インデックスが同じもの同士** がセットです。
+
+```text
+i=0: dy=-1, dx= 0  →  上（y が 1 減る）
+i=1: dy=+1, dx= 0  →  下（y が 1 増える）
+i=2: dy= 0, dx=-1  →  左（x が 1 減る）
+i=3: dy= 0, dx=+1  →  右（x が 1 増える）
+```
+
+`for i in range(4):` のループ 1 つで 4 方向全てを試せます。
+
+### y は下向きが +1
+
+迷路を表す配列の **行番号** がそのまま y です。
+画面では下ほど行番号が大きいため、y は下向きに増えます。
+
+```text
+y=0  ........    ← 0行目
+y=1  .####...    ← 1行目
+y=2  ....#...
+y=3  .##.....
+y=4  ........    ← 4行目
+     x→
+```
+
+「上に進む = y が 1 減る」になることに注意してください。
 
 ## 迷路の外に出ていないか確認する
 
@@ -321,14 +350,14 @@ dc = [0, 0, -1, 1]
 Python:
 
 ```python
-if not (0 <= next_row < H and 0 <= next_col < W):
+if not (0 <= ny < H and 0 <= nx < W):
     continue
 ```
 
 C++:
 
 ```cpp
-if (next_row < 0 || next_row >= H || next_col < 0 || next_col >= W) {
+if (ny < 0 || ny >= H || nx < 0 || nx >= W) {
     continue;
 }
 ```
@@ -340,8 +369,8 @@ if (next_row < 0 || next_row >= H || next_col < 0 || next_col >= W) {
 Python:
 
 ```python
-que.append((row, col))       # 追加
-row, col = que.popleft()     # 先頭を取り出す
+que.append((y, x))       # 追加
+y, x = que.popleft()     # 先頭を取り出す
 ```
 
 C++:
@@ -349,10 +378,10 @@ C++:
 ```cpp
 deque<pair<int, int>> que;
 
-que.push_back({row, col});        // 追加
+que.push_back({y, x});        // 追加
 
-auto [row, col] = que.front();    // 先頭を見る（row と col に分けて受け取る）
-que.pop_front();                  // 先頭を削除
+auto [y, x] = que.front();    // 先頭を見る（y と x に分けて受け取る）
+que.pop_front();              // 先頭を削除
 ```
 
 ---
@@ -363,7 +392,7 @@ que.pop_front();                  // 先頭を削除
 
 まずは、スタートから各マスまでの最短距離を求めます。
 
-`dist[row][col]` に、
+`dist[y][x]` に、
 
 - `-1`: まだ訪れていない
 - `0以上`: スタートからの距離
@@ -406,7 +435,7 @@ TODO を埋めるまではプログラムは正しく動きません。
 BFSが終了したら、
 
 ```text
-dist[goal_row][goal_col]
+dist[gy][gx]
 ```
 
 を確認します。
@@ -443,8 +472,8 @@ BFSは距離の小さい順に処理し、一度入れた距離を書き換え�
 を保存します。`dist` と同じ形の表をもう2つ用意して、
 
 ```text
-prev_row[next_row][next_col] = row
-prev_col[next_row][next_col] = col
+py[ny][nx] = y
+px[ny][nx] = x
 ```
 
 と記録しておきます。
@@ -464,11 +493,11 @@ Start
 のように最短経路を復元できます。
 
 ```text
-row, col = ゴール
+y, x = ゴール
 
-while (row, col) がスタートでない:
-    (row, col) に印をつける
-    (row, col) = (prev_row[row][col], prev_col[row][col])
+while (y, x) がスタートでない:
+    (y, x) に印をつける
+    (y, x) = (py[y][x], px[y][x])
 ```
 
 動くものは `answers/3_bfs_path_answer.py` / `answers/3_bfs_path_answer.cpp` にあります。
@@ -479,8 +508,9 @@ while (row, col) がスタートでない:
 
 `mazes/` フォルダに迷路ファイルがあります。
 
-- `4_bfs_from_file.py` / `4_bfs_from_file.cpp` の `maze_file` を書き換えると、その迷路で試せます。
-- 自分で書いたプログラムで試すときは、`maze` の中身と `start_row` などを書き換えます。
+- `4_bfs_from_file.py` の `maze_file` を書き換えると、その迷路で試せます。
+- C++ は `./3_bfs_answer < ../mazes/maze04.txt` のようにリダイレクションで試せます。
+- 自分で書いたプログラムで試すときは、`maze` の中身と `sy` などを書き換えます。
 
 例: 到達できない迷路 `maze05_unreachable.txt`
 
@@ -493,8 +523,8 @@ maze = [
     ".......",
 ]
 
-start_row, start_col = 0, 0
-goal_row, goal_col = 4, 6
+sy, sx = 0, 0
+gy, gx = 4, 6
 ```
 
 「ゴールには到達できません」と表示されれば正解です。
@@ -557,8 +587,8 @@ DFSでも「ゴールに到達できるか」は調べられます。
 
 ```text
 H W
-start_row start_col
-goal_row goal_col
+sy sx
+gy gx
 迷路...
 ```
 

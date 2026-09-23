@@ -9,33 +9,30 @@ int main() {
     // キューの取り出し（TODO 1）を埋めるまでは実行しても終わりません（無限ループ）。
     // 止まらなくなったら Ctrl + C で終了してください。
 
-    vector<string> maze = {
-        "........",
-        ".####...",
-        "....#...",
-        ".##.....",
-        "........",
-    };
+    int H, W;
+    cin >> H >> W;
 
-    int H = (int)maze.size();
-    int W = (int)maze[0].size();
+    int sy, sx;
+    int gy, gx;
+    cin >> sy >> sx;
+    cin >> gy >> gx;
 
-    int start_row = 0;
-    int start_col = 0;
-    int goal_row = 4;
-    int goal_col = 7;
+    vector<string> maze(H);
+    for (int i = 0; i < H; i++) {
+        cin >> maze[i];
+    }
 
     // 各マスまでの距離。-1 は「まだ訪れていない」
     vector<vector<int>> dist(H, vector<int>(W, -1));
 
-    int dr[4] = {-1, 1, 0, 0};
-    int dc[4] = {0, 0, -1, 1};
+    int dy[4] = {-1, 1, 0, 0};
+    int dx[4] = {0, 0, -1, 1};
 
     deque<pair<int, int>> que;
 
     // スタート地点をキューに入れる
-    dist[start_row][start_col] = 0;
-    que.push_back({start_row, start_col});
+    dist[sy][sx] = 0;
+    que.push_back({sy, sx});
 
     while (!que.empty()) {
         // TODO 1:
@@ -69,7 +66,7 @@ int main() {
         }
     }
 
-    int answer = dist[goal_row][goal_col];
+    int answer = dist[gy][gx];
 
     if (answer == -1) {
         cout << "ゴールには到達できません\n";

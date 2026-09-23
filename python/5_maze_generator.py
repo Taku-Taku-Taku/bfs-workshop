@@ -10,62 +10,64 @@ if H % 2 == 0 or W % 2 == 0:
 maze = [["#"] * W for _ in range(H)]
 
 # 1マス飛ばしで進み、間の壁も壊す
-dr = [-2, 2, 0, 0]
-dc = [0, 0, -2, 2]
+dy = [-2, 2, 0, 0]
+dx = [0, 0, -2, 2]
 
-start = (1, 1)
-stack = [start]
+stack = [(1, 1)]
 maze[1][1] = "."
 
 while stack:
-    row, col = stack[-1]
+    y, x = stack[-1]
 
     candidates = []
 
     for i in range(4):
-        nr = row + dr[i]
-        nc = col + dc[i]
+        ny = y + dy[i]
+        nx = x + dx[i]
 
-        if not (1 <= nr < H - 1 and 1 <= nc < W - 1):
+        if not (1 <= ny < H - 1 and 1 <= nx < W - 1):
             continue
 
-        if maze[nr][nc] == ".":
+        if maze[ny][nx] == ".":
             continue
 
-        candidates.append((nr, nc))
+        candidates.append((ny, nx))
 
     if not candidates:
         stack.pop()
         continue
 
-    nr, nc = random.choice(candidates)
+    ny, nx = random.choice(candidates)
 
     # 現在地と次のマスの間の壁を壊す
-    wall_row = (row + nr) // 2
-    wall_col = (col + nc) // 2
+    wy = (y + ny) // 2
+    wx = (x + nx) // 2
 
-    maze[wall_row][wall_col] = "."
-    maze[nr][nc] = "."
+    maze[wy][wx] = "."
+    maze[ny][nx] = "."
 
-    stack.append((nr, nc))
+    stack.append((ny, nx))
 
 # 通路からランダムにスタート・ゴールを選ぶ
 roads = [
-    (r, c)
-    for r in range(H)
-    for c in range(W)
-    if maze[r][c] == "."
+    (y, x)
+    for y in range(H)
+    for x in range(W)
+    if maze[y][x] == "."
 ]
 
-start_row, start_col = random.choice(roads)
+sy, sx = random.choice(roads)
 
-goal_row, goal_col = random.choice(roads)
-while (goal_row, goal_col) == (start_row, start_col):
-    goal_row, goal_col = random.choice(roads)
+gy, gx = random.choice(roads)
+while (gy, gx) == (sy, sx):
+    gy, gx = random.choice(roads)
+
+maze[sy][sx] = "S"
+maze[gy][gx] = "G"
 
 print(H, W)
-print(start_row, start_col)
-print(goal_row, goal_col)
+print(sy, sx)
+print(gy, gx)
 
-for row in maze:
-    print("".join(row))
+for line in maze:
+    print("".join(line))
