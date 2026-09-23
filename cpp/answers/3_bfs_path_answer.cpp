@@ -9,10 +9,10 @@ int main() {
     int H, W;
     cin >> H >> W;
 
-    int start_row, start_col;
-    int goal_row, goal_col;
-    cin >> start_row >> start_col;
-    cin >> goal_row >> goal_col;
+    int sy, sx;
+    int gy, gx;
+    cin >> sy >> sx;
+    cin >> gy >> gx;
 
     vector<string> maze(H);
     for (int i = 0; i < H; i++) {
@@ -23,50 +23,50 @@ int main() {
     vector<vector<int>> dist(H, vector<int>(W, -1));
 
     // そのマスへ「どこから来たか」を覚えておく表
-    vector<vector<int>> prev_row(H, vector<int>(W, -1));
-    vector<vector<int>> prev_col(H, vector<int>(W, -1));
+    vector<vector<int>> py(H, vector<int>(W, -1));
+    vector<vector<int>> px(H, vector<int>(W, -1));
 
-    int dr[4] = {-1, 1, 0, 0};
-    int dc[4] = {0, 0, -1, 1};
+    int dy[4] = {-1, 1, 0, 0};
+    int dx[4] = {0, 0, -1, 1};
 
     deque<pair<int, int>> que;
 
     // スタート地点をキューに入れる
-    dist[start_row][start_col] = 0;
-    que.push_back({start_row, start_col});
+    dist[sy][sx] = 0;
+    que.push_back({sy, sx});
 
     while (!que.empty()) {
-        auto [row, col] = que.front();
+        auto [y, x] = que.front();
         que.pop_front();
 
         for (int i = 0; i < 4; i++) {
-            int next_row = row + dr[i];
-            int next_col = col + dc[i];
+            int ny = y + dy[i];
+            int nx = x + dx[i];
 
-            if (next_row < 0 || next_row >= H ||
-                next_col < 0 || next_col >= W) {
+            if (ny < 0 || ny >= H ||
+                nx < 0 || nx >= W) {
                 continue;
             }
 
-            if (maze[next_row][next_col] == '#') {
+            if (maze[ny][nx] == '#') {
                 continue;
             }
 
-            if (dist[next_row][next_col] != -1) {
+            if (dist[ny][nx] != -1) {
                 continue;
             }
 
-            dist[next_row][next_col] = dist[row][col] + 1;
+            dist[ny][nx] = dist[y][x] + 1;
 
-            // (next_row, next_col) には (row, col) から来た
-            prev_row[next_row][next_col] = row;
-            prev_col[next_row][next_col] = col;
+            // (ny, nx) には (y, x) から来た
+            py[ny][nx] = y;
+            px[ny][nx] = x;
 
-            que.push_back({next_row, next_col});
+            que.push_back({ny, nx});
         }
     }
 
-    int answer = dist[goal_row][goal_col];
+    int answer = dist[gy][gx];
 
     if (answer == -1) {
         cout << "ゴールには到達できません\n";
@@ -77,20 +77,20 @@ int main() {
         vector<string> result = maze;
 
         // ゴールから prev をたどってスタートまで戻る
-        int row = goal_row;
-        int col = goal_col;
+        int y = gy;
+        int x = gx;
 
-        while (row != start_row || col != start_col) {
-            result[row][col] = '*';
+        while (y != sy || x != sx) {
+            result[y][x] = '*';
 
-            int back_row = prev_row[row][col];
-            int back_col = prev_col[row][col];
-            row = back_row;
-            col = back_col;
+            int back_y = py[y][x];
+            int back_x = px[y][x];
+            y = back_y;
+            x = back_x;
         }
 
-        result[start_row][start_col] = 'S';
-        result[goal_row][goal_col] = 'G';
+        result[sy][sx] = 'S';
+        result[gy][gx] = 'G';
 
         for (const string& line : result) {
             cout << line << '\n';

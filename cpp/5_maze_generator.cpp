@@ -17,8 +17,8 @@ int main() {
 
     vector<string> maze(H, string(W, '#'));
 
-    int dr[4] = {-2, 2, 0, 0};
-    int dc[4] = {0, 0, -2, 2};
+    int dy[4] = {-2, 2, 0, 0};
+    int dx[4] = {0, 0, -2, 2};
 
     random_device rd;
     mt19937 rng(rd());
@@ -28,23 +28,23 @@ int main() {
     maze[1][1] = '.';
 
     while (!st.empty()) {
-        auto [row, col] = st.back();
+        auto [y, x] = st.back();
 
         vector<pair<int, int>> candidates;
 
         for (int i = 0; i < 4; i++) {
-            int nr = row + dr[i];
-            int nc = col + dc[i];
+            int ny = y + dy[i];
+            int nx = x + dx[i];
 
-            if (nr < 1 || nr >= H - 1 || nc < 1 || nc >= W - 1) {
+            if (ny < 1 || ny >= H - 1 || nx < 1 || nx >= W - 1) {
                 continue;
             }
 
-            if (maze[nr][nc] == '.') {
+            if (maze[ny][nx] == '.') {
                 continue;
             }
 
-            candidates.push_back({nr, nc});
+            candidates.push_back({ny, nx});
         }
 
         if (candidates.empty()) {
@@ -53,38 +53,41 @@ int main() {
         }
 
         shuffle(candidates.begin(), candidates.end(), rng);
-        auto [nr, nc] = candidates[0];
+        auto [ny, nx] = candidates[0];
 
-        int wall_row = (row + nr) / 2;
-        int wall_col = (col + nc) / 2;
+        int wy = (y + ny) / 2;
+        int wx = (x + nx) / 2;
 
-        maze[wall_row][wall_col] = '.';
-        maze[nr][nc] = '.';
+        maze[wy][wx] = '.';
+        maze[ny][nx] = '.';
 
-        st.push_back({nr, nc});
+        st.push_back({ny, nx});
     }
 
     vector<pair<int, int>> roads;
 
-    for (int r = 0; r < H; r++) {
-        for (int c = 0; c < W; c++) {
-            if (maze[r][c] == '.') {
-                roads.push_back({r, c});
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+            if (maze[y][x] == '.') {
+                roads.push_back({y, x});
             }
         }
     }
 
     shuffle(roads.begin(), roads.end(), rng);
 
-    auto [start_row, start_col] = roads[0];
-    auto [goal_row, goal_col] = roads[1];
+    auto [sy, sx] = roads[0];
+    auto [gy, gx] = roads[1];
+
+    maze[sy][sx] = 'S';
+    maze[gy][gx] = 'G';
 
     cout << H << ' ' << W << '\n';
-    cout << start_row << ' ' << start_col << '\n';
-    cout << goal_row << ' ' << goal_col << '\n';
+    cout << sy << ' ' << sx << '\n';
+    cout << gy << ' ' << gx << '\n';
 
-    for (const string& row : maze) {
-        cout << row << '\n';
+    for (const string& line : maze) {
+        cout << line << '\n';
     }
 
     return 0;
